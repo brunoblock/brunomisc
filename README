@@ -1,0 +1,17 @@
+DualSig Contract Documentation:
+
+There are two Ethereum wallets, each controlled by director A and director B.
+
+Director A and B both have equal leverage and authority in the dual-sig contract system.
+
+Either directors A or B can invoke a proposed amount of Ether/Tokens to be moved to a proposed address. The initiating person invokes the proposal() function, which causes the proposal variables to become populated.
+
+After one person invokes the proposal() function, there are three potential scenarios which the other person can go through:
+
+1. The other person invokes the accept() function, which causes the proposed transaction to actuate.
+
+2. The other person invokes the reset() function, which causes the proposed transaction to become cleared and hence declined.
+
+3. The other person abstains from invoking any functions. If X amount of time elapses since the initial invocation of proposal() from the original person, than the original person is permitted to invoke the accept() function themselves, which actuates the transaction.
+
+The smart contract is also equipped with functions that allow the public address definitions of the wallets of directors A and B to be transferred.
