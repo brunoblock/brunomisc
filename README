@@ -12,6 +12,6 @@ After one person invokes the proposal() function, there are three potential scen
 
 2. The other person invokes the reset() function, which causes the proposed transaction to become cleared and hence declined.
 
-3. The other person abstains from invoking any functions. If overrideTime amount of time (seconds( elapses since the initial invocation of proposal() from the original person, then the original person is permitted to invoke the accept() function themselves, which actuates the transaction.
+3. The other person abstains from invoking any functions. If overrideTime amount of time (seconds) elapses since the initial invocation of proposal() from the original person, then the original person is permitted to invoke the accept() function themselves, which actuates the transaction.
 
 The smart contract is also equipped with functions that allow the public address definitions of the wallets of directors A and B to be transferred.
