@@ -17,6 +17,7 @@ contract DualSig {
     address public proposalDestination;
     uint256 public proposalTimestamp;
     uint8 public proposalNonce;
+    uint256 public overrideTime;
 
     modifier onlyDirectors {
         require(msg.sender == directorA || msg.sender == directorB);
@@ -24,6 +25,7 @@ contract DualSig {
     }
 
     constructor() public {
+        overrideTime = 86400;
         proposalNonce = 0;
         directorA = msg.sender;
         directorB = msg.sender;
@@ -52,7 +54,7 @@ contract DualSig {
         require(proposalNonce == acceptNonce);
         require(proposalAmount > 0);
         require(proposalDestination != 0x0);
-        require(proposalAuthor != msg.sender || (block.timestamp-proposalTimestamp) > 86400);
+        require(proposalAuthor != msg.sender || (block.timestamp-proposalTimestamp) > overrideTime);
 
         if (proposalContract==0x0) {
             require(proposalAmount <= address(this).balance);
