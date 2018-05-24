@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
-//Author: Bruno Block
-//Version: 0.1
+//Author: Bruno Block (bruno@oyster.ws)
+//Version: 0.2
 
 interface contractInterface {
     function balanceOf(address _owner) external constant returns (uint256 balance);
@@ -19,13 +19,17 @@ contract DualSig {
     uint8 public proposalNonce;
     uint256 public overrideTime;
 
+    event Proposal(uint8 _nonce, address _author, address _contract, uint256 _amount, address _destination, uint256 _timestamp);
+
+    event Accept(uint8 _nonce);
+
     modifier onlyDirectors {
         require(msg.sender == directorA || msg.sender == directorB);
         _;
     }
 
     constructor() public {
-        overrideTime = 86400;
+        overrideTime = 5259492;//two month override interval
         proposalNonce = 0;
         directorA = msg.sender;
         directorB = msg.sender;
@@ -38,7 +42,8 @@ contract DualSig {
         proposalContract = proposalContractSet;
         proposalAmount = proposalAmountSet;
         proposalDestination = proposalDestinationSet;
-        proposalTimestamp = block.timestamp;
+        proposalTimestamp = block.timestamp + overrideTime;
+        emit Proposal(proposalNonce, proposalAuthor, proposalContract, proposalAmount, proposalDestination, proposalTimestamp);
     }
 
     function reset() public onlyDirectors {
@@ -54,7 +59,7 @@ contract DualSig {
         require(proposalNonce == acceptNonce);
         require(proposalAmount > 0);
         require(proposalDestination != 0x0);
-        require(proposalAuthor != msg.sender || (block.timestamp-proposalTimestamp) > overrideTime);
+        require(proposalAuthor != msg.sender || block.timestamp >= proposalTimestamp);
 
         if (proposalContract==0x0) {
             require(proposalAmount <= address(this).balance);
@@ -64,6 +69,7 @@ contract DualSig {
             contractInterface tokenContract = contractInterface(proposalContract);
             tokenContract.transfer(proposalDestination, proposalAmount);
         }
+        emit Accept(acceptNonce);
         reset();
     }
 
