@@ -19,9 +19,9 @@ contract DualSig {
     uint256 public proposalNonce;
     uint256 public overrideTime;
 
-    event Proposal(uint8 _nonce, address _author, address _contract, uint256 _amount, address _destination, uint256 _timestamp);
+    event Proposal(uint256 _nonce, address _author, address _contract, uint256 _amount, address _destination, uint256 _timestamp);
 
-    event Accept(uint8 _nonce);
+    event Accept(uint256 _nonce);
 
     modifier onlyDirectors {
         require(msg.sender == directorA || msg.sender == directorB);
@@ -55,7 +55,7 @@ contract DualSig {
         proposalTimestamp = 0;
     }
 
-    function accept(uint8 acceptNonce) public onlyDirectors {
+    function accept(uint256 acceptNonce) public onlyDirectors {
         require(proposalNonce == acceptNonce);
         require(proposalAmount > 0);
         require(proposalDestination != 0x0);
