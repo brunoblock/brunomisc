@@ -74,14 +74,14 @@ contract DualSig {
     }
 
     function transferDirectorA(address newDirectorA) public {
-        reset();
         require(msg.sender==directorA);
+        reset();
         directorA = newDirectorA;
     }
 
     function transferDirectorB(address newDirectorB) public {
-        reset();
         require(msg.sender==directorB);
+        reset();
         directorB = newDirectorB;
     }
 }
