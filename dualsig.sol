@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-//Author: Bruno Block (bruno@oyster.ws)
+//Author: Bruno Block
 //Version: 0.2
 
 interface contractInterface {
@@ -74,11 +74,13 @@ contract DualSig {
     }
 
     function transferDirectorA(address newDirectorA) public {
+        reset();
         require(msg.sender==directorA);
         directorA = newDirectorA;
     }
 
     function transferDirectorB(address newDirectorB) public {
+        reset();
         require(msg.sender==directorB);
         directorB = newDirectorB;
     }
