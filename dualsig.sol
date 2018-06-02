@@ -16,7 +16,7 @@ contract DualSig {
     uint256 public proposalAmount;
     address public proposalDestination;
     uint256 public proposalTimestamp;
-    uint8 public proposalNonce;
+    uint256 public proposalNonce;
     uint256 public overrideTime;
 
     event Proposal(uint8 _nonce, address _author, address _contract, uint256 _amount, address _destination, uint256 _timestamp);
