@@ -1,7 +1,7 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 //Author: Bruno Block
-//Version: 0.2
+//Version: 0.3
 
 interface contractInterface {
     function balanceOf(address _owner) external constant returns (uint256 balance);
