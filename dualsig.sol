@@ -18,10 +18,15 @@ contract DualSig {
     uint256 public proposalTimestamp;
     uint256 public proposalNonce;
     uint256 public overrideTime;
+    uint256 public transferSafety;
 
     event Proposal(uint256 _nonce, address _author, address _contract, uint256 _amount, address _destination, uint256 _timestamp);
 
     event Accept(uint256 _nonce);
+
+    event NewDirectorA(address _director);
+
+    event NewDirectorB(address _director);
 
     modifier onlyDirectors {
         require(msg.sender == directorA || msg.sender == directorB);
@@ -31,6 +36,7 @@ contract DualSig {
     constructor() public {
         overrideTime = 60*60*24*30;//one month override interval
         proposalNonce = 0;
+        transferSafety = 1 ether;
         directorA = msg.sender;
         directorB = msg.sender;
         reset();
@@ -73,15 +79,21 @@ contract DualSig {
         reset();
     }
 
-    function transferDirectorA(address newDirectorA) public {
+    function transferDirectorA(address newDirectorA) public payable {
         require(msg.sender==directorA);
+        require(msg.value==transferSafety);// Prevents accidental transfer
+        directorA.transfer(transferSafety);// Reimburse safety deposit
         reset();
         directorA = newDirectorA;
+        emit NewDirectorA(directorA);
     }
 
-    function transferDirectorB(address newDirectorB) public {
+    function transferDirectorB(address newDirectorB) public payable {
         require(msg.sender==directorB);
+        require(msg.value==transferSafety);// Prevents accidental transfer
+        directorB.transfer(transferSafety);// Reimburse safety deposit
         reset();
         directorB = newDirectorB;
+        emit NewDirectorB(directorB);
     }
 }
