@@ -29,7 +29,7 @@ contract DualSig {
     }
 
     constructor() public {
-        overrideTime = 5259492;//two month override interval
+        overrideTime = 60*60*24*30;//one month override interval
         proposalNonce = 0;
         directorA = msg.sender;
         directorB = msg.sender;
