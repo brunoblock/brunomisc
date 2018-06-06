@@ -56,6 +56,9 @@ contract DualSig {
 
     function reset() public onlyDirectors {
         proposalNonce++;
+        if (proposalNonce > 1000000) {
+            proposalNonce = 0;
+        }
         proposalAuthor = 0x0;
         proposalContract = 0x0;
         proposalAmount = 0;
