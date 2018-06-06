@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 //Author: Bruno Block
-//Version: 0.3
+//Version: 0.5
 
 interface contractInterface {
     function balanceOf(address _owner) external constant returns (uint256 balance);
@@ -13,11 +13,11 @@ contract DualSig {
     address public directorB;
     address public proposalAuthor;
     address public proposalContract;
-    uint256 public proposalAmount;
     address public proposalDestination;
-    uint256 public proposalTimestamp;
+    uint256 public proposalAmount;
+    uint256 public proposalBlock;
     uint256 public proposalNonce;
-    uint256 public overrideTime;
+    uint256 public overrideBlock;
     uint256 public transferSafety;
 
     event Proposal(uint256 _nonce, address _author, address _contract, uint256 _amount, address _destination, uint256 _timestamp);
@@ -34,7 +34,7 @@ contract DualSig {
     }
 
     constructor() public {
-        overrideTime = 60*60*24*30;//one month override interval
+        overrideBlock = (60*60*24*30)/15;//one month override interval assuming 15 second blocks (172,800 blocks)
         proposalNonce = 0;
         transferSafety = 1 ether;
         directorA = msg.sender;
@@ -42,14 +42,16 @@ contract DualSig {
         reset();
     }
 
+    function () public payable {}
+
     function proposal(address proposalContractSet, uint256 proposalAmountSet, address proposalDestinationSet) public onlyDirectors {
         proposalNonce++;
         proposalAuthor = msg.sender;
         proposalContract = proposalContractSet;
         proposalAmount = proposalAmountSet;
         proposalDestination = proposalDestinationSet;
-        proposalTimestamp = block.timestamp + overrideTime;
-        emit Proposal(proposalNonce, proposalAuthor, proposalContract, proposalAmount, proposalDestination, proposalTimestamp);
+        proposalBlock = block.number + overrideBlock;
+        emit Proposal(proposalNonce, proposalAuthor, proposalContract, proposalAmount, proposalDestination, proposalBlock);
     }
 
     function reset() public onlyDirectors {
@@ -58,25 +60,29 @@ contract DualSig {
         proposalContract = 0x0;
         proposalAmount = 0;
         proposalDestination = 0x0;
-        proposalTimestamp = 0;
+        proposalBlock = 0;
     }
 
     function accept(uint256 acceptNonce) public onlyDirectors {
         require(proposalNonce == acceptNonce);
         require(proposalAmount > 0);
         require(proposalDestination != 0x0);
-        require(proposalAuthor != msg.sender || block.timestamp >= proposalTimestamp);
+        require(proposalAuthor != msg.sender || block.number >= proposalBlock);
 
-        if (proposalContract==0x0) {
-            require(proposalAmount <= address(this).balance);
-            proposalDestination.transfer(proposalAmount);
+        address localContract = proposalContract;
+        address localDestination = proposalDestination;
+        uint256 localAmount = proposalAmount;
+        reset();
+
+        if (localContract==0x0) {
+            require(localAmount <= address(this).balance);
+            localDestination.transfer(localAmount);
         }
         else {
-            contractInterface tokenContract = contractInterface(proposalContract);
-            tokenContract.transfer(proposalDestination, proposalAmount);
+            contractInterface tokenContract = contractInterface(localContract);
+            tokenContract.transfer(localDestination, localAmount);
         }
         emit Accept(acceptNonce);
-        reset();
     }
 
     function transferDirectorA(address newDirectorA) public payable {
